@@ -16,7 +16,7 @@ export default function RegisterAndLoginForm() {
 
     async function handleSubmit(ev) {
         ev.preventDefault();
-        const url = isLoginOrRegister === 'register' ? '/api/register' : '/api/login';
+        const url = isLoginOrRegister === 'register' ? '/register' : '/login';
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email) && isLoginOrRegister === "login") {
@@ -65,7 +65,7 @@ export default function RegisterAndLoginForm() {
         }
 
         try {
-            const response = await axios.post('/api/forgot-password', { email }, { withCredentials: true });
+            const response = await axios.post('/forgot-password', { email }, { withCredentials: true });
             const {status, data} = response;
             if (status === 200) {
                 // Handle the success response

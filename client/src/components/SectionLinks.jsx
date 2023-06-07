@@ -25,7 +25,7 @@ export default function SectionLinks() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.post(`/api/links`, { user_id: id });
+                const response = await axios.post(`/links`, { user_id: id });
                 if (response.status === 200) {
                     setAllLinks(response.data); // Assign response.data.data to allLinks
                     console.log(response.data);
@@ -45,7 +45,7 @@ export default function SectionLinks() {
         event.preventDefault();
 
         try {
-            const response = await axios.post('/api/shorten', { long_url: newLink, user_id: id });
+            const response = await axios.post('/shorten', { long_url: newLink, user_id: id });
 
 
             if (response.status === 201) {

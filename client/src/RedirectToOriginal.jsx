@@ -11,7 +11,7 @@ export default function RedirectToOriginal() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`/api/${shortenedId}`);
+                const response = await axios.get(`/${shortenedId}`);
                 // console.log(response.data.message);
 
                 if (response.data.message === `URL not found`) {

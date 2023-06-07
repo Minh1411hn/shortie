@@ -28,7 +28,7 @@ export function UserContextProvider({ children }) {
         }
 
         if (token) {
-            axios.get(`/api/reset-password/${token}`)
+            axios.get(`/reset-password/${token}`)
                 .then((response) => {
                     if (response.status === 200) {
                         setId(response.data.userId);
@@ -52,7 +52,7 @@ export function UserContextProvider({ children }) {
                     }
                 });
         } else {
-            axios.get('/api/profile')
+            axios.get('/profile')
                 .then((response) => {
                     setId(response.data.userId);
                     setEmail(response.data.email);
