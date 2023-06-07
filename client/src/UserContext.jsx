@@ -26,19 +26,7 @@ export function UserContextProvider({ children }) {
             setShortenedId(rootPath);
         }
 
-        if (shortenedId) {
-            axios.get(`/${shortenedId}`)
-                .then((response) => {
-                    if (response.status === 200) {
-                        window.location.href = response.data.original_url;
-                    } else {
-                        console.log("URL not found");
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        } else if (token) {
+        if (token) {
             axios.get(`/reset-password/${token}`)
                 .then((response) => {
                     if (response.status === 200) {
@@ -75,7 +63,8 @@ export function UserContextProvider({ children }) {
                     console.error(error);
                 });
         }
-    }, [shortenedId, location.pathname]);
+    }, []);
+    // }, [shortenedId, location.pathname]);
 
     return (
         <UserContext.Provider
