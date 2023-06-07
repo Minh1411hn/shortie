@@ -59,12 +59,12 @@ function generateApiKey() {
 
 
 
-app.get('/api/test', (req, res) => {
+app.get('/test', (req, res) => {
     res.json('test ok');
 });
 
 
-app.post('/api/register', async (req, res) => {
+app.post('/register', async (req, res) => {
     const { email, password, username } = req.body;
     try {
         // Check if the user already exists
@@ -98,7 +98,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -138,7 +138,7 @@ app.post('/api/login', async (req, res) => {
 
 
 
-app.get('/api/profile', (req,res) => {
+app.get('/profile', (req,res) => {
     const token = req.cookies?.token;
     if (token) {
         jwt.verify(token, jwtSecret, {}, (err, userData) => {
@@ -150,7 +150,7 @@ app.get('/api/profile', (req,res) => {
     }
 });
 
-app.post('/api/reset-password', async (req, res) => {
+app.post('/reset-password', async (req, res) => {
     const { email, id, password } = req.body;
 
     try {
@@ -188,7 +188,7 @@ app.post('/api/reset-password', async (req, res) => {
 });
 
 
-app.post('/api/shorten', async (req, res) => {
+app.post('/shorten', async (req, res) => {
     const { user_id, long_url } = req.body;
 
     let previewTitle, previewDescription, previewImage;
@@ -235,7 +235,7 @@ app.post('/api/shorten', async (req, res) => {
 });
 
 
-app.post('/api/links', async (req, res) => {
+app.post('/links', async (req, res) => {
     const { user_id } = req.body;
 
     try {
@@ -252,7 +252,7 @@ app.post('/api/links', async (req, res) => {
 });
 
 
-app.get('/api/:shortened_id', async (req, res) => {
+app.get('/:shortened_id', async (req, res) => {
     const { shortened_id: shortenedId } = req.params;
     // const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const ipAddress = req.ip;
