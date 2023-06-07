@@ -1,0 +1,50 @@
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.14",
+    "axios": "^1.4.0",
+    "bcryptjs": "^2.4.3",
+    "blueimp-md5": "^2.19.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.1.4",
+    "express": "^4.18.2",
+    "express-useragent": "^1.0.15",
+    "geoip-lite": "^1.4.7",
+    "html-to-image": "^1.11.11",
+    "jsonwebtoken": "^9.0.0",
+    "maxmind": "^4.3.11",
+    "nanoid": "^4.0.2",
+    "pg": "^8.11.0",
+    "postcss": "^8.4.24",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-gravatar": "^2.6.3",
+    "react-router-dom": "^6.12.0",
+    "react-spring": "^9.7.1",
+    "request": "^2.88.2",
+    "request-ip": "^3.3.0",
+    "tailwindcss": "^3.3.2",
+    "useragent": "^2.3.0",
+    "yamlparser": "^0.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.37",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^8.38.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "vite": "^4.3.9"
+  }
+}
