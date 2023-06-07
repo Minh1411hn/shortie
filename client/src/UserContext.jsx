@@ -27,7 +27,7 @@ export function UserContextProvider({ children }) {
         }
 
         if (shortenedId) {
-            axios.get(`/api/${shortenedId}`)
+            axios.get(`/${shortenedId}`)
                 .then((response) => {
                     if (response.status === 200) {
                         window.location.href = response.data.original_url;
@@ -39,7 +39,7 @@ export function UserContextProvider({ children }) {
                     console.error(error);
                 });
         } else if (token) {
-            axios.get(`/api/reset-password/${token}`)
+            axios.get(`/reset-password/${token}`)
                 .then((response) => {
                     if (response.status === 200) {
                         setId(response.data.userId);
@@ -63,7 +63,7 @@ export function UserContextProvider({ children }) {
                     }
                 });
         } else {
-            axios.get('/api/profile')
+            axios.get('/profile')
                 .then((response) => {
                     setId(response.data.userId);
                     setEmail(response.data.email);
