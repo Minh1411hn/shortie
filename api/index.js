@@ -282,6 +282,7 @@ app.get('/:shortened_id', async (req, res) => {
             return res.status(200).json({ message: 'URL expired', expired_at:result.rows[0].expired_at });
         } else {
             res.status(200).json(result.rows[0]);
+            console.log(result.rows[0]);
         }
     } catch (error) {
         console.error('Error getting URLs:', error);
