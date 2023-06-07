@@ -280,9 +280,16 @@ app.get('/:shortened_id', async (req, res) => {
             return res.status(200).json({ message: 'URL expired', expired_at:result.rows[0].expired_at });
         } else {
 
-            const redirectUrl = `https://${result.rows[0].original_url}`;
-            return res.redirect(redirectUrl);
+            const redirectUrl = result.rows[0].original_url;
+            const protocolRegex = /^(https?|ftp):\/\//; // Regular expression to check if URL has a protocol
 
+            if (!protocolRegex.test(redirectUrl)) {
+                // If the URL does not have a protocol, prepend "http://" before redirecting
+                return res.redirect(`http://${redirectUrl}`);
+            } else {
+                // The URL already has a protocol, redirect as is
+                return res.redirect(redirectUrl);
+            }
             // res.status(200).json(result.rows[0]);
             // console.log(result.rows[0]);
         }

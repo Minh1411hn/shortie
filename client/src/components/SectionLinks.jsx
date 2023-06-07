@@ -49,7 +49,7 @@ export default function SectionLinks() {
 
 
             if (response.status === 201) {
-                setShortenedLink(`${import.meta.env.VITE_CLIENT_URL}/${response.data.shortened_id}`);
+                setShortenedLink(`${import.meta.env.VITE_API_BASE_URL}/${response.data.shortened_id}`);
                 // setPreviewImage(response.data.previewImage);
                 // setPreviewTitle(response.data.previewTitle);
                 // setPreviewDescription(response.data.previewDescription);
@@ -81,7 +81,7 @@ export default function SectionLinks() {
                             return (
                                 <div className="border-[1px] border-accentHover my-4 p-4 rounded-lg flex-col pb-5" key={link.id}>
                                     <h2>
-                                        <span className="text-accent">{import.meta.env.VITE_CLIENT_URL}</span>
+                                        <span className="text-accent">{import.meta.env.VITE_API_BASE_URL}</span>
                                         <span>/{link.shortened_id}</span>
                                     </h2>
                                     <div>{link.original_url}</div>

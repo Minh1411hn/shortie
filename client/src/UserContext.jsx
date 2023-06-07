@@ -19,13 +19,6 @@ export function UserContextProvider({ children }) {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
 
-        if (location.pathname !== "/") {
-            // Extract the root path from the current path
-            const rootPath = location.pathname.split("/")[1];
-            console.log("Root Path:", rootPath);
-            setShortenedId(rootPath);
-        }
-
         if (token) {
             axios.get(`/reset-password/${token}`)
                 .then((response) => {
