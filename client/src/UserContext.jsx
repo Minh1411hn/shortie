@@ -24,11 +24,22 @@ export function UserContextProvider({ children }) {
             const rootPath = location.pathname.split("/")[1];
             console.log("Root Path:", rootPath);
             setShortenedId(rootPath);
-
         }
 
-        if (token) {
-            axios.get(`/reset-password/${token}`)
+        if (shortenedId) {
+            axios.get(`/api/${shortenedId}`)
+                .then((response) => {
+                    if (response.status === 200) {
+                        window.location.href = response.data.original_url;
+                    } else {
+                        console.log("URL not found");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        } else if (token) {
+            axios.get(`/api/reset-password/${token}`)
                 .then((response) => {
                     if (response.status === 200) {
                         setId(response.data.userId);
@@ -36,7 +47,7 @@ export function UserContextProvider({ children }) {
                         setUsername(response.data.username);
                         setAvatar(response.data.avatar);
                         setResetPasswordMessage(response.data.message);
-                        setResetPassword(true)
+                        setResetPassword(true);
                     } else {
                         setResetPassword(true);
                         setResetPasswordMessage(response.data.message);
@@ -52,7 +63,7 @@ export function UserContextProvider({ children }) {
                     }
                 });
         } else {
-            axios.get('/profile')
+            axios.get('/api/profile')
                 .then((response) => {
                     setId(response.data.userId);
                     setEmail(response.data.email);
@@ -61,11 +72,10 @@ export function UserContextProvider({ children }) {
                     setApiKey(response.data.apiKey);
                 })
                 .catch((error) => {
-                    console.error('');
+                    console.error(error);
                 });
         }
-    }, []);
-
+    }, [shortenedId, location.pathname]);
 
     return (
         <UserContext.Provider
