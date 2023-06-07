@@ -265,8 +265,6 @@ app.get('/:shortened_id', async (req, res) => {
     console.log(ipAddress);
     console.log(userAgent);
 
-
-
     try {
         const client = await pool.connect();
         const query = 'SELECT * FROM urls WHERE shortened_id = $1';
@@ -281,8 +279,9 @@ app.get('/:shortened_id', async (req, res) => {
         } else if (result.rows[0].expired_at !== null) {
             return res.status(200).json({ message: 'URL expired', expired_at:result.rows[0].expired_at });
         } else {
-            res.status(200).json(result.rows[0]);
-            console.log(result.rows[0]);
+            return res.redirect(result.rows[0].original_url);
+            // res.status(200).json(result.rows[0]);
+            // console.log(result.rows[0]);
         }
     } catch (error) {
         console.error('Error getting URLs:', error);
