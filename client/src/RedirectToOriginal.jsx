@@ -12,7 +12,7 @@ export default function RedirectToOriginal() {
         const fetchData = async () => {
             try {
                 const response = await axios.get(`/${shortenedId}`);
-                // console.log(response.data.message);
+                console.log(response.data.message);
 
                 if (response.data.message === `URL not found`) {
                     setNotFound(true);
