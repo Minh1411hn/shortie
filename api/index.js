@@ -279,7 +279,10 @@ app.get('/:shortened_id', async (req, res) => {
         } else if (result.rows[0].expired_at !== null) {
             return res.status(200).json({ message: 'URL expired', expired_at:result.rows[0].expired_at });
         } else {
-            return res.redirect(result.rows[0].original_url);
+
+            const redirectUrl = `https://${result.rows[0].original_url}`;
+            return res.redirect(redirectUrl);
+
             // res.status(200).json(result.rows[0]);
             // console.log(result.rows[0]);
         }
