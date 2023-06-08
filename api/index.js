@@ -9,12 +9,11 @@ const crypto = require('crypto');
 const axios = require('axios');
 const useragent = require('useragent');
 const maxmind = require('maxmind');
-// const{ CityResponse } = require('maxmind');
 //
 //
-// const cityLookup = maxmind.open('/path/to/GeoLiteCity.mmdb');
-// const asnLookup = maxmind.open('/path/to/GeoIPASNum.mmdb');
-// const ispLookup = maxmind.open('/path/to/GeoISP.mmdb');
+// const cityLookup = maxmind.open('/assets/GeoLite2-ASN.mmdb');
+// const asnLookup = maxmind.open('/assets/GeoIPASNum.mmdb');
+// const ispLookup = maxmind.open('/assets/GeoISP.mmdb');
 
 useragent(true);
 
@@ -274,14 +273,30 @@ app.get('/:shortened_id', async (req, res) => {
 
         if (result.rowCount === 0) {
             return res.status(200).json({ message: 'URL not found' });
+
         } else if (result.rows[0].deleted_at !== null) {
             return res.status(200).json({ message: 'URL deleted', deleted_at: result.rows[0].deleted_at });
+
         } else if (result.rows[0].expired_at !== null) {
             return res.status(200).json({ message: 'URL expired', expired_at:result.rows[0].expired_at });
+
         } else {
+            // save the event to db
+            try {
+                const client = await pool.connect();
+                const insertQuery = 'INSERT INTO events (shortened_url_id, timestamp, user_agent, ip_address) VALUES ($1, $2, $3, $4)';
+                const insertValues = [result.rows[0].id, new Date(), req.headers['user-agent'], req.ip];
+                await client.query(insertQuery, insertValues);
+                client.release();
+            } catch (error) {
+                console.error('Error inserting event:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+
 
             const redirectUrl = result.rows[0].original_url;
-            const protocolRegex = /^(https?|ftp):\/\//; // Regular expression to check if URL has a protocol
+            const protocolRegex = /^(https?|ftp):\/\//;
+            // Check if orginal URL have http yet
 
             if (!protocolRegex.test(redirectUrl)) {
                 // If the URL does not have a protocol, prepend "http://" before redirecting
@@ -290,8 +305,6 @@ app.get('/:shortened_id', async (req, res) => {
                 // The URL already has a protocol, redirect as is
                 return res.redirect(redirectUrl);
             }
-            // res.status(200).json(result.rows[0]);
-            // console.log(result.rows[0]);
         }
     } catch (error) {
         console.error('Error getting URLs:', error);
