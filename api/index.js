@@ -348,7 +348,7 @@ app.get('/:shortened_id', async (req, res) => {
 
         } else {
             const expiredAt = DateTime.fromJSDate(new Date(result.rows[0].expired_at)).setZone('Asia/Ho_Chi_Minh').plus({ hours: 7 });
-            if (expiredAt > currentTime) {
+            if (expiredAt < currentTime) {
                 try {
                     const client = await pool.connect();
                     const insertQuery = 'INSERT INTO events (shortened_url_id, timestamp, user_agent, ip_address) VALUES ($1, $2, $3, $4)';
