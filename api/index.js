@@ -136,6 +136,9 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/api/logout', (req,res)=>{
+    res.cookie('token', '', {sameSite:'none', secure:true}).json('ok');
+})
 
 
 app.get('/profile', (req,res) => {
@@ -291,6 +294,26 @@ app.post('/links', async (req, res) => {
     }
 });
 
+app.post('/links/statistics', async (req, res) => {
+    const { user_id } = req.body;
+
+    try {
+        const client = await pool.connect();
+        const query = 'SELECT urls.*,\n' +
+            '       CAST((SELECT COUNT(*) FROM events WHERE events.shortened_url_id = urls.id) AS INTEGER) AS clicks_count\n' +
+            'FROM urls\n' +
+            'WHERE urls.user_id = $1\n' +
+            'ORDER BY clicks_count DESC';
+        const values = [user_id];
+        const result = await client.query(query, values);
+        client.release();
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error getting URLs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 app.get('/:shortened_id', async (req, res) => {
     const { shortened_id: shortenedId } = req.params;
@@ -314,13 +337,16 @@ app.get('/:shortened_id', async (req, res) => {
 
         client.release();
 
+        // Not Found URL
         if (result.rowCount === 0) {
             return res.status(200).json({ message: 'URL not found' });
 
+        // Deleted URL
         } else if (result.rows[0].deleted_at !== null) {
             return res.status(200).json({ message: 'URL deleted', deleted_at: result.rows[0].deleted_at });
 
-        } else if (result.rows[0].expired_at !== null) {
+
+        } else {
             const expiredAt = DateTime.fromJSDate(new Date(result.rows[0].expired_at)).setZone('Asia/Ho_Chi_Minh').plus({ hours: 7 });
             if (expiredAt > currentTime) {
                 try {

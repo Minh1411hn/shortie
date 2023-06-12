@@ -44,7 +44,7 @@ export default function EditLinkModal ({selectedShortenedId, selectedExpireDate,
 
     useEffect(() => {
         const luxonObject = DateTime.fromISO(selectedExpireDate, { zone: "UTC" }).plus({hours: 7});
-        setExpireDate(luxonObject.toJSDate());
+        setExpireDate(selectedExpireDate? luxonObject.toJSDate() : null);
     }, []);
 
 
