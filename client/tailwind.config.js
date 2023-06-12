@@ -13,6 +13,7 @@ export default {
         grey: '#5A697D',
       }},
   },
-  plugins: [],
+  plugins: [
+  ],
 }
 

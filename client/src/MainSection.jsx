@@ -3,11 +3,11 @@ import {UserContext} from "./UserContext.jsx";
 import axios from "axios";
 import Gravatar from 'react-gravatar';
 import Panel from "./components/Panel.jsx";
-import SectionDashboard from "./components/SectionDashboard.jsx";
-import SectionCampaigns from "./components/SectionCampaigns.jsx";
-import SectionCustomLink from "./components/SectionCustomLink.jsx";
-import SectionLinks from "./components/SectionLinks.jsx";
-import SectionQRCodes from "./components/SectionQRCodes.jsx";
+import SectionDashboard from "./sections/SectionDashboard.jsx";
+import SectionCampaigns from "./sections/SectionCampaigns.jsx";
+import SectionCustomLink from "./sections/SectionCustomLink.jsx";
+import SectionLinks from "./sections/SectionLinks.jsx";
+import SectionQRCodes from "./sections/SectionQRCodes.jsx";
 
 
 

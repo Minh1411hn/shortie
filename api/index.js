@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const axios = require('axios');
 const useragent = require('useragent');
 const maxmind = require('maxmind');
+const { DateTime } = require('luxon');
 //
 //
 // const cityLookup = maxmind.open('/assets/GeoLite2-ASN.mmdb');
@@ -186,11 +187,51 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
+app.post('/shorten/edit', async (req, res) => {
+    const { long_url, expired_at, shortened_id } = req.body;
 
-app.post('/shorten', async (req, res) => {
-    const { user_id, long_url } = req.body;
+    try {
+        const client = await pool.connect();
+
+        // Save the URL and its shortened ID to the database
+        const query = 'UPDATE urls SET original_url = $1 , expired_at = $2 WHERE shortened_id = $3 RETURNING *';
+        const values = [long_url, expired_at, shortened_id];
+        const result = await client.query(query, values);
+
+        client.release();
+
+        // Return the shortened URL and preview data in the response
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error during edit:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+app.post('/shorten/delete', async (req, res) => {
+    const { shortened_id } = req.body;
+    try {
+        const client = await pool.connect();
+        const nowOutput = new Date();
+
+        const query =`UPDATE urls SET deleted_at = $1 WHERE shortened_id = $2 RETURNING *`;
+        const values = [nowOutput, shortened_id];
+        const result = await client.query(query, values);
+        client.release();
+
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error during delete:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.post('/shorten/new', async (req, res) => {
+    const { user_id, long_url, expired_at } = req.body;
 
     let previewTitle, previewDescription, previewImage;
+
 
     // if (long_url) {
     //     axios.post('https://api.linkpreview.net/', {
@@ -209,7 +250,7 @@ app.post('/shorten', async (req, res) => {
 
     const { customAlphabet } = await import('nanoid');
     function generateShortenUrl() {
-        const id = customAlphabet('1234567890abcdef', 10);
+        const id = customAlphabet('1234567890abcdef', 7);
         return id();
     }
 
@@ -219,14 +260,14 @@ app.post('/shorten', async (req, res) => {
         const unique_id = generateShortenUrl();
 
         // Save the URL and its shortened ID to the database
-        const query = 'INSERT INTO urls (user_id,original_url, shortened_id) VALUES ($1, $2, $3)';
-        const values = [user_id, long_url, unique_id];
-        await client.query(query, values);
+        const query = 'INSERT INTO urls (user_id,original_url, shortened_id, expired_at) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [user_id, long_url, unique_id, expired_at];
+        const result = await client.query(query, values);
 
         client.release();
 
         // Return the shortened URL and preview data in the response
-        res.status(201).json({ shortened_id: unique_id, previewTitle, previewDescription, previewImage });
+        res.status(200).json(result.rows[0]);
     } catch (error) {
         console.error('Error during URL shortening:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -239,7 +280,7 @@ app.post('/links', async (req, res) => {
 
     try {
         const client = await pool.connect();
-        const query = 'SELECT * FROM urls WHERE user_id = $1 ORDER BY created_at DESC';
+        const query = 'SELECT * FROM urls WHERE user_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC';
         const values = [user_id];
         const result = await client.query(query, values);
         client.release();
@@ -260,15 +301,17 @@ app.get('/:shortened_id', async (req, res) => {
 
     const userAgent = useragent.parse(req.headers['user-agent']);
     const device = `${userAgent.os.toString()} - ${userAgent.toString()}`;
-
-    console.log(ipAddress);
-    console.log(userAgent);
+    const currentTime = DateTime.now();
 
     try {
         const client = await pool.connect();
         const query = 'SELECT * FROM urls WHERE shortened_id = $1';
         const values = [shortenedId];
         const result = await client.query(query, values);
+
+        const redirectUrl = result.rows[0].original_url;
+        const protocolRegex = /^(https?|ftp):\/\//;
+
         client.release();
 
         if (result.rowCount === 0) {
@@ -278,7 +321,18 @@ app.get('/:shortened_id', async (req, res) => {
             return res.status(200).json({ message: 'URL deleted', deleted_at: result.rows[0].deleted_at });
 
         } else if (result.rows[0].expired_at !== null) {
-            return res.status(200).json({ message: 'URL expired', expired_at:result.rows[0].expired_at });
+            const expiredAt = DateTime.fromJSDate(new Date(result.rows[0].expired_at)).setZone('Asia/Ho_Chi_Minh').plus({ hours: 7 });
+            if (expiredAt > currentTime) {
+                if (!protocolRegex.test(redirectUrl)) {
+                    // If the URL does not have a protocol, prepend "http://" before redirecting
+                    return res.redirect(`http://${redirectUrl}`);
+                } else {
+                    // The URL already has a protocol, redirect as is
+                    return res.redirect(redirectUrl);
+                }
+            } else {
+                return res.status(200).json({ message: 'URL expired', expired_at: expiredAt});
+            }
 
         } else {
             // save the event to db
@@ -293,10 +347,7 @@ app.get('/:shortened_id', async (req, res) => {
                 res.status(500).json({ message: 'Internal server error' });
             }
 
-
-            const redirectUrl = result.rows[0].original_url;
-            const protocolRegex = /^(https?|ftp):\/\//;
-            // Check if orginal URL have http yet
+            // Check if original URL have http yet
 
             if (!protocolRegex.test(redirectUrl)) {
                 // If the URL does not have a protocol, prepend "http://" before redirecting
