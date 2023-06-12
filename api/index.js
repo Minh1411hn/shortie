@@ -323,6 +323,17 @@ app.get('/:shortened_id', async (req, res) => {
         } else if (result.rows[0].expired_at !== null) {
             const expiredAt = DateTime.fromJSDate(new Date(result.rows[0].expired_at)).setZone('Asia/Ho_Chi_Minh').plus({ hours: 7 });
             if (expiredAt > currentTime) {
+                try {
+                    const client = await pool.connect();
+                    const insertQuery = 'INSERT INTO events (shortened_url_id, timestamp, user_agent, ip_address) VALUES ($1, $2, $3, $4)';
+                    const insertValues = [result.rows[0].id, new Date(), req.headers['user-agent'], req.ip];
+                    await client.query(insertQuery, insertValues);
+                    client.release();
+                } catch (error) {
+                    console.error('Error inserting event:', error);
+                    res.status(500).json({ message: 'Internal server error' });
+                }
+
                 if (!protocolRegex.test(redirectUrl)) {
                     // If the URL does not have a protocol, prepend "http://" before redirecting
                     return res.redirect(`http://${redirectUrl}`);
@@ -332,29 +343,6 @@ app.get('/:shortened_id', async (req, res) => {
                 }
             } else {
                 return res.status(200).json({ message: 'URL expired', expired_at: expiredAt});
-            }
-
-        } else {
-            // save the event to db
-            try {
-                const client = await pool.connect();
-                const insertQuery = 'INSERT INTO events (shortened_url_id, timestamp, user_agent, ip_address) VALUES ($1, $2, $3, $4)';
-                const insertValues = [result.rows[0].id, new Date(), req.headers['user-agent'], req.ip];
-                await client.query(insertQuery, insertValues);
-                client.release();
-            } catch (error) {
-                console.error('Error inserting event:', error);
-                res.status(500).json({ message: 'Internal server error' });
-            }
-
-            // Check if original URL have http yet
-
-            if (!protocolRegex.test(redirectUrl)) {
-                // If the URL does not have a protocol, prepend "http://" before redirecting
-                return res.redirect(`http://${redirectUrl}`);
-            } else {
-                // The URL already has a protocol, redirect as is
-                return res.redirect(redirectUrl);
             }
         }
     } catch (error) {
