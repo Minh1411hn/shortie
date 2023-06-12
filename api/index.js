@@ -300,10 +300,19 @@ app.post('/links/statistics', async (req, res) => {
     try {
         const client = await pool.connect();
         const query = 'SELECT urls.*,\n' +
-            '       CAST((SELECT COUNT(*) FROM events WHERE events.shortened_url_id = urls.id) AS INTEGER) AS clicks_count\n' +
+            '       CAST((SELECT COUNT(*) FROM events WHERE events.shortened_url_id = urls.id) AS INTEGER) AS clicks_count,\n' +
+            '       CASE\n' +
+            '           WHEN urls.deleted_at IS NOT NULL THEN \'deleted\'\n' +
+            '           WHEN urls.expired_at IS NOT NULL AND EXTRACT(EPOCH FROM (urls.expired_at - NOW())) / 60 < 0 THEN \'expired\'\n' +
+            '           ELSE \'active\'\n' +
+            '       END AS status,\n' +
+            '       CASE\n' +
+            '           WHEN urls.expired_at IS NOT NULL THEN EXTRACT(EPOCH FROM (urls.expired_at - NOW())) / 60\n' +
+            '           ELSE NULL\n' +
+            '       END AS minutes_until_expired\n' +
             'FROM urls\n' +
             'WHERE urls.user_id = $1\n' +
-            'ORDER BY clicks_count DESC';
+            'ORDER BY clicks_count DESC;\n';
         const values = [user_id];
         const result = await client.query(query, values);
         client.release();

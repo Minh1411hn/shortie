@@ -19,20 +19,22 @@ export default function SectionDashboard(props) {
                 if (response.status === 200) {
                     setAllLinksStats(response.data); // Assign response.data.data to allLinks
                     setTotalClicks(response.data.reduce((acc, obj) => acc + obj.clicks_count, 0))
-                    console.log(response.data);
-                    const now = DateTime.local();
 
-                    const active = response.data.reduce((count, link) => {
-                        const expiredAt = link.expired_at ? DateTime.fromISO(link.expired_at) : null;
-                        const deletedAt = link.deleted_at ? DateTime.fromISO(link.deleted_at) : null;
-
-                        if ((expiredAt === null || expiredAt < now) && deletedAt === null) {
+                    const active = response.data.reduce((count, item) => {
+                        if (item.status === "active") {
                             return count + 1;
                         }
-
                         return count;
                     }, 0);
                     setActiveLinks(active);
+
+                    const expired = response.data.reduce((count, item) => {
+                        if (item.status === "expired") {
+                            return count + 1;
+                        }
+                        return count;
+                    }, 0);
+                    setExpiredLinks(expired);
                 }
             } catch (error) {
                 console.error('Error getting all links', error);
@@ -93,7 +95,7 @@ export default function SectionDashboard(props) {
                             </svg>
                             <div className=" flex flex-col ml-4">
                                 <p className="font-light">Expired Links</p>
-                                <h1 className="font-bold text-2xl">256</h1>
+                                <h1 className="font-bold text-2xl">{expiredLinks}</h1>
                             </div>
                         </div>
 
