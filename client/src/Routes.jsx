@@ -28,19 +28,15 @@ export default function Routes() {
     //     return <div>Loading...</div>;
     // }
 
-    if (shortenedId) {
-        return <RedirectToOriginal />;
-    }
-
     if (email && id && username && !resetPassword) {
         return <MainSection />;
     }
 
-    if (resetPassword || resetPasswordMessage) {
+    if (resetPassword || resetPasswordMessage ) {
         return <ResetPassword />;
     }
 
-    if (!shortenedId && !email && !id && !username && !resetPassword && !resetPasswordMessage) {
+    else {
         return <RegisterAndLoginForm />;
     }
 

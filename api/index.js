@@ -232,40 +232,37 @@ app.post('/shorten/delete', async (req, res) => {
 });
 
 app.post('/shorten/new', async (req, res) => {
-    const { user_id, long_url, expired_at } = req.body;
-
-    let previewTitle, previewDescription, previewImage;
-
-
-    // if (long_url) {
-    //     axios.post('https://api.linkpreview.net/', {
-    //         key: process.env.PREVIEW_API_KEY,
-    //         q: long_url
-    //     })
-    //         .then(function (response) {
-    //             previewTitle = response.data.title;
-    //             previewDescription = response.data.description;
-    //             previewImage = response.data.image;
-    //         })
-    //         .catch(function (error) {
-    //             console.log(error);
-    //         });
-    // }
-
-    const { customAlphabet } = await import('nanoid');
-    function generateShortenUrl() {
-        const id = customAlphabet('1234567890abcdef', 7);
-        return id();
-    }
+    const {long_url, expired_at } = req.body;
+    const api_key = req.headers['authorization'];
 
     try {
         const client = await pool.connect();
 
+        // Check if the provided API key is valid
+        const apiKeyQuery = 'SELECT * FROM users WHERE api_key = $1';
+        const apiKeyValues = [api_key];
+        const apiKeyResult = await client.query(apiKeyQuery, apiKeyValues);
+
+        if (apiKeyResult.rows.length === 0) {
+            // Invalid API key
+            client.release();
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const { customAlphabet } = await import('nanoid');
+        function generateShortenUrl() {
+            const id = customAlphabet('1234567890abcdef', 7);
+            return id();
+        }
+
+        const user_id = apiKeyResult.rows[0].id;
+        const apiEndpoint = process.env.API_ENDPOINT.toString();
         const unique_id = generateShortenUrl();
 
         // Save the URL and its shortened ID to the database
-        const query = 'INSERT INTO urls (user_id,original_url, shortened_id, expired_at) VALUES ($1, $2, $3, $4) RETURNING *';
-        const values = [user_id, long_url, unique_id, expired_at];
+        const query =
+            'INSERT INTO urls (user_id, original_url, shortened_id, expired_at) VALUES ($1, $2, $3, $4) RETURNING CONCAT($5::text, shortened_id) AS shortened_url, original_url, shortened_id, expired_at, created_at';
+        const values = [user_id, long_url, unique_id, expired_at, apiEndpoint ];
         const result = await client.query(query, values);
 
         client.release();
@@ -277,6 +274,7 @@ app.post('/shorten/new', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 app.post('/links', async (req, res) => {

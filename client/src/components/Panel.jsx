@@ -56,7 +56,7 @@ function Panel({ setSelectedSection, selectedSection, onClick }) {
                     </div>
 
                     {/*QR CODES*/}
-                    <div className={`flex items-center px-3 h-10 mx-3 my-2 rounded-lg cursor-pointer ${selectedSection === 'qrcodes' ? "text-accent bg-accentHover" : "text-grey"}`} onClick={()=> {handlePanelSectionClick('qrcodes')}}>
+                    <div className={`flex items-center px-3 h-10 mx-3 my-2 rounded-lg cursor-pointer ${selectedSection === 'qr codes' ? "text-accent bg-accentHover" : "text-grey"}`} onClick={()=> {handlePanelSectionClick('qr codes')}}>
                         <div className="flex-shrink-0 flex-grow-0">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"
@@ -97,7 +97,7 @@ function Panel({ setSelectedSection, selectedSection, onClick }) {
                     </div>
 
                     {/*CUSTOM LINKS*/}
-                    <div className={`flex items-center px-3 h-10 mx-3 my-2 rounded-lg cursor-pointer ${selectedSection === 'customlink' ? "text-accent bg-accentHover" : "text-grey"}`} onClick={()=> {handlePanelSectionClick('customlink')}}>
+                    <div className={`flex items-center px-3 h-10 mx-3 my-2 rounded-lg cursor-pointer ${selectedSection === 'custom link' ? "text-accent bg-accentHover" : "text-grey"}`} onClick={()=> {handlePanelSectionClick('custom link')}}>
                         <div className="flex-shrink-0 flex-grow-0">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"

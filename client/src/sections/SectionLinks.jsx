@@ -67,11 +67,10 @@ function ButtonDatePicker(props) {
 
 export default function SectionLinks() {
     const [newLink, setNewLink] = useState('');
-    const {email,id,setId,setEmail,username,setUsername, avatar, setAvatar } = useContext(UserContext);
+    const {email,id,setId,setEmail,username,setUsername, avatar, setAvatar,apiKey } = useContext(UserContext);
     const [shortenedLink, setShortenedLink] = useState(null);
     const [shortenedResult, setShortenedResult] = useState([]);
     const [previewImage, setPreviewImage] = useState(null);
-    const [previewTitle, setPreviewTitle] = useState(null);
     const [previewDescription, setPreviewDescription] = useState(null);
     const [totalClicks, setTotalClicks] = useState(0);
     const [allLinks, setAllLinks] = useState([]);
@@ -141,7 +140,14 @@ export default function SectionLinks() {
         event.preventDefault();
 
         try {
-            const response = await axios.post('/shorten/new', { long_url: newLink, user_id: id, expired_at: expireDate });
+            const response = await axios.post('/shorten/new', {
+                long_url: newLink,
+                expired_at: expireDate
+            }, {
+                headers: {
+                    Authorization: `${apiKey}`
+                }
+            });
 
 
             if (response.status === 200) {
@@ -149,11 +155,6 @@ export default function SectionLinks() {
                 const data = response.data;
                 setShortenedResult(data);
                 setShortenedLink(`${import.meta.env.VITE_API_BASE_URL}/${data.shortened_id}`);
-                // setPreviewImage(response.data.previewImage);
-                // setPreviewTitle(response.data.previewTitle);
-                // setPreviewDescription(response.data.previewDescription);
-                // Handle the response data
-                // console.log('Shortened URL ID:', data.data.shortened_url);
             } else {
                 throw new Error('Failed to shorten URL');
             }
@@ -385,7 +386,7 @@ export default function SectionLinks() {
                     <animated.div id="shortened-link-preview" className="bg-light my-2 drop-shadow rounded-lg px-5 py-5 h-fit" style={fadeIn}>
                         <h2>Your Link Is Ready 🎉</h2>
                         <div className="bg-dark my-4 rounded-lg">
-                            <img src={"https://i.imgur.com/Xej6z3I.jpg"} alt={previewTitle} className="mx-auto py-4 w-3/5" />
+                            <img src={`https://api.thumbnail.ws/api/${import.meta.env.VITE_SCREENSHOT_API}/thumbnail/get?url=${newLink}&width=640&delay=500`} alt="" className="mx-auto py-4 w-3/5" />
                         </div>
                         <Tooltip title="Click to copy" arrow PopperProps={{placement: "top"}}>
                             <div onClick={() => {navigator.clipboard.writeText(shortenedLink); setToastMessage("Copied to Clipboard!"); handleToast()}} className="cursor-pointer rounded-lg border-[1px] border-gray-200 py-3 flex text-accent">
