@@ -8,8 +8,8 @@ import Gravatar from "react-gravatar";
 import {ThemeProvider} from "@mui/system";
 import axios from "axios";
 
-export default function MenuButton() {
-    const {email,id,setId,setEmail,username,setUsername, avatar, setAvatar } = useContext(UserContext);
+export default function MenuButton({setOpenProfile}) {
+    const {email,id,setId,setEmail,username,setUsername, avatar, setAvatar} = useContext(UserContext);
     const [anchorEl, setAnchorEl] = useState(null);
 
     const open = Boolean(anchorEl);
@@ -81,7 +81,7 @@ export default function MenuButton() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                <MenuItem onClick={()=>{handleClose();setOpenProfile(true)}}>Profile</MenuItem>
                 <MenuItem onClick={()=>{handleClose();logout()}} sx={{color: "red"}}>Logout</MenuItem>
             </Menu>
             </ThemeProvider>

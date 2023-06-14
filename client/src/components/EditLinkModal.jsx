@@ -39,7 +39,7 @@ export default function EditLinkModal ({selectedShortenedId, selectedExpireDate,
     const [originLink, setOriginLink] = useState(null);
     const [expireDate, setExpireDate] = useState(null);
     const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState();
+    const [toastMessage, setToastMessage] = useState('');
 
 
     useEffect(() => {
@@ -49,11 +49,7 @@ export default function EditLinkModal ({selectedShortenedId, selectedExpireDate,
 
 
     const handleToast = () => {
-        preventDefault();
-        if (toastMessage) {
-            setShowToast(!showToast);
-            setToastMessage(null);
-        }
+        setShowToast(!showToast);
     };
 
     const handleDelete = async (event) => {
@@ -143,10 +139,10 @@ export default function EditLinkModal ({selectedShortenedId, selectedExpireDate,
                             </Tooltip>
                         </div>
                         <div className="bg-dark my-4 rounded-lg">
-                            <img src={"https://i.imgur.com/Xej6z3I.jpg"} alt="" className="mx-auto py-4 w-3/5" />
+                            <img src={`https://api.thumbnail.ws/api/${import.meta.env.VITE_SCREENSHOT_API}/thumbnail/get?url=${selectedOriginUrl}&width=640&delay=500`} alt="" className="mx-auto py-4 w-3/5" />
                         </div>
                         <Tooltip title="Click to copy" arrow PopperProps={{placement: "top"}}>
-                            <div onClick={() => {navigator.clipboard.writeText(selectedShortenedId)}} className="cursor-pointer rounded-lg border-[1px] border-gray-200 py-3 flex text-white bg-accent">
+                            <div onClick={() => {navigator.clipboard.writeText(selectedShortenedId);setToastMessage('Link deleted successfully');handleToast();}} className="cursor-pointer rounded-lg border-[1px] border-gray-200 py-3 flex text-white bg-accent">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      fill="none"
                                      viewBox="0 0 24 24"

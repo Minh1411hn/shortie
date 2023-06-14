@@ -97,7 +97,7 @@ function Panel({ setSelectedSection, selectedSection, onClick }) {
                     </div>
 
                     {/*CUSTOM LINKS*/}
-                    <div className={`flex items-center px-3 h-10 mx-3 my-2 rounded-lg cursor-pointer ${selectedSection === 'custom link' ? "text-accent bg-accentHover" : "text-grey"}`} onClick={()=> {handlePanelSectionClick('custom link')}}>
+                    <a className={`flex items-center px-3 h-10 mx-3 my-2 rounded-lg cursor-pointer ${selectedSection === 'custom link' ? "text-accent bg-accentHover" : "text-grey"}`} href={'https://documenter.getpostman.com/view/21834131/2s93sf3Wjk'} target="_blank">
                         <div className="flex-shrink-0 flex-grow-0">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"
@@ -111,9 +111,9 @@ function Panel({ setSelectedSection, selectedSection, onClick }) {
                             </svg>
                         </div>
                         <span className="flex-shrink-0 flex-grow ml-2 text-sm font-semibold">
-                            Custom Link
+                            API
                         </span>
-                    </div>
+                    </a>
 
                 </div>
             </div>

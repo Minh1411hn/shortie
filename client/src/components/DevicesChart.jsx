@@ -87,7 +87,14 @@ export default function ClicksChart() {
 
     return (
         <div >
-            <Chart options={chartData.options} series={chartData.series} type="donut" height={200} />
+            {chartData.series.length > 0 && (
+                <Chart options={chartData.options} series={chartData.series} type="donut" height={200} />
+            )}
+            {chartData.series.length === 0 && (
+                <div className="flex">
+                    <p className="mx-auto justify-center items-center">No Data</p>
+                </div>
+            )}
         </div>
     )
 }

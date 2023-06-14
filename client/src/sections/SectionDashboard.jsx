@@ -130,45 +130,52 @@ export default function SectionDashboard(props) {
                         <h1>
                             Top Links
                         </h1>
-                        <div className="pt-6">
-                            {allLinksStats.filter((link) => link.clicks_count > 0).slice(0, 7).map((link) => {
-                                return (
-                                    <div className="py-4 flex-col" key={link.shortened_id} >
-                                        <div className="flex flex-col">
-                                            <div className="flex justify-between ">
-                                                <div className="flex flex-col col-span-2">
-                                                    <div className="flex ">
-                                                        <img src={`https://www.google.com/s2/favicons?domain=${link.original_url}&sz=256`} alt="" className="w-5 h-5 self-center ml-2 mr-5 "/>
-                                                        <div>
-                                                            <p className="text-sm">{link.original_url}</p>
-                                                            <div >
-                                                                <p className=" cursor-pointer text-xs text-accent" onClick={() => {{
-                                                                    navigator.clipboard.writeText(`${import.meta.env.VITE_API_BASE_URL}/${link.shortened_id}`);
-                                                                    setToastMessage('Copied to clipboard');
-                                                                    handleToast();
-                                                                }}}>
-                                                                    <span className="">{import.meta.env.VITE_API_BASE_URL.replace(/^https?:\/\//, '')}</span>
-                                                                    <span>/{link.shortened_id}</span>
-                                                                </p>
+                        {!allLinksStats.length == 0 && (
+                            <div className="flex">
+                                <p className="mx-auto justify-center items-center">No Data</p>
+                            </div>
+                        )}
+                        {allLinksStats.length > 0 && (
+                            <div className="pt-6">
+                                {allLinksStats.filter((link) => link.clicks_count > 0).slice(0, 7).map((link) => {
+                                    return (
+                                        <div className="py-4 flex-col" key={link.shortened_id} >
+                                            <div className="flex flex-col">
+                                                <div className="flex justify-between ">
+                                                    <div className="flex flex-col col-span-2">
+                                                        <div className="flex ">
+                                                            <img src={`https://www.google.com/s2/favicons?domain=${link.original_url}&sz=256`} alt="" className="w-5 h-5 self-center ml-2 mr-5 "/>
+                                                            <div>
+                                                                <p className="text-sm">{link.original_url}</p>
+                                                                <div >
+                                                                    <p className=" cursor-pointer text-xs text-accent" onClick={() => {{
+                                                                        navigator.clipboard.writeText(`${import.meta.env.VITE_API_BASE_URL}/${link.shortened_id}`);
+                                                                        setToastMessage('Copied to clipboard');
+                                                                        handleToast();
+                                                                    }}}>
+                                                                        <span className="">{import.meta.env.VITE_API_BASE_URL.replace(/^https?:\/\//, '')}</span>
+                                                                        <span>/{link.shortened_id}</span>
+                                                                    </p>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div className="self-center justify-self-end flex ">
-                                                    <p>{link.clicks_count}</p>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                         fill="currentColor" className="w-5 h-5 ml-2">
-                                                        <path fill-rule="evenodd"
-                                                              d="M12 1.5a.75.75 0 01.75.75V4.5a.75.75 0 01-1.5 0V2.25A.75.75 0 0112 1.5zM5.636 4.136a.75.75 0 011.06 0l1.592 1.591a.75.75 0 01-1.061 1.06l-1.591-1.59a.75.75 0 010-1.061zm12.728 0a.75.75 0 010 1.06l-1.591 1.592a.75.75 0 01-1.06-1.061l1.59-1.591a.75.75 0 011.061 0zm-6.816 4.496a.75.75 0 01.82.311l5.228 7.917a.75.75 0 01-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 01-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 01-1.247-.606l.569-9.47a.75.75 0 01.554-.68zM3 10.5a.75.75 0 01.75-.75H6a.75.75 0 010 1.5H3.75A.75.75 0 013 10.5zm14.25 0a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H18a.75.75 0 01-.75-.75zm-8.962 3.712a.75.75 0 010 1.061l-1.591 1.591a.75.75 0 11-1.061-1.06l1.591-1.592a.75.75 0 011.06 0z"
-                                                              clip-rule="evenodd"/>
-                                                    </svg>
+                                                    <div className="self-center justify-self-end flex ">
+                                                        <p>{link.clicks_count}</p>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                             fill="currentColor" className="w-5 h-5 ml-2">
+                                                            <path fill-rule="evenodd"
+                                                                  d="M12 1.5a.75.75 0 01.75.75V4.5a.75.75 0 01-1.5 0V2.25A.75.75 0 0112 1.5zM5.636 4.136a.75.75 0 011.06 0l1.592 1.591a.75.75 0 01-1.061 1.06l-1.591-1.59a.75.75 0 010-1.061zm12.728 0a.75.75 0 010 1.06l-1.591 1.592a.75.75 0 01-1.06-1.061l1.59-1.591a.75.75 0 011.061 0zm-6.816 4.496a.75.75 0 01.82.311l5.228 7.917a.75.75 0 01-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 01-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 01-1.247-.606l.569-9.47a.75.75 0 01.554-.68zM3 10.5a.75.75 0 01.75-.75H6a.75.75 0 010 1.5H3.75A.75.75 0 013 10.5zm14.25 0a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H18a.75.75 0 01-.75-.75zm-8.962 3.712a.75.75 0 010 1.061l-1.591 1.591a.75.75 0 11-1.061-1.06l1.591-1.592a.75.75 0 011.06 0z"
+                                                                  clip-rule="evenodd"/>
+                                                        </svg>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

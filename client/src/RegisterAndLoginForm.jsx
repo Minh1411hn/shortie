@@ -2,6 +2,7 @@ import {useContext, useEffect, useState} from "react";
 import axios from "axios";
 import {UserContext} from "./UserContext.jsx";
 import Gravatar from "react-gravatar";
+import LogoImg from "./assets/logo.svg";
 
 export default function RegisterAndLoginForm() {
     const [username, setUsername] = useState('');
@@ -100,11 +101,17 @@ export default function RegisterAndLoginForm() {
 
     return (
         // <div className="bg-gradient-to-b from-[#FEF9EE] to-white h-screen flex items-center justify-center">
-        <div className="bg-[#FF7235] h-screen flex items-center justify-center overflow-hidden">
-            <div className="bg-white w-[90%] md:w-[500px] mx-auto border rounded-[10px] justify-center items-center">
+        <div className="bg-dark h-screen flex items-center justify-center overflow-hidden">
+            <div className="bg-light w-[90%] md:w-[500px] mx-auto border rounded-[10px] justify-center items-center">
+                    <div className="flex justify-center my-6 mb-10">
+                        <div className="flex items-center">
+                            <img src={LogoImg} alt="" width="45px" className="p-2" />
+                            <span className=" text-grey font-bold text-[30px] align-middle">shortie</span>
+                        </div>
+                    </div>
                 <div className={`${isMobile ? "w-4/5 mx-auto" : "w-3/5 mx-auto"}`}>
                     <div className="flex justify-between mt-5 mb-6 mx-auto border-[1px] rounded-md">
-                        <button className={`block w-1/2 rounded-md p-2 ${isLoginOrRegister === "login" ? "bg-orange-500" +
+                        <button className={`block w-1/2 rounded-md p-2 ${isLoginOrRegister === "login" ? "bg-accent" +
                             " drop-shadow-md" +
                             " text-white" : "bg-white text-gray-500"}`} onClick={() => {
                             setIsLoginOrRegister("login");
@@ -112,7 +119,7 @@ export default function RegisterAndLoginForm() {
                         }}>
                             Sign In
                         </button>
-                        <button className={`block w-1/2 rounded-md p-2 ${isLoginOrRegister === "register" ? "bg-orange-500 text-white drop-shadow-md" : "bg-white text-gray-500"}`}
+                        <button className={`block w-1/2 rounded-md p-2 ${isLoginOrRegister === "register" ? "bg-accent text-white drop-shadow-md" : "bg-white text-gray-500"}`}
                                 onClick={() => {
                                     setIsLoginOrRegister("register");
                                     setIsForgotPassword(false);
@@ -128,7 +135,7 @@ export default function RegisterAndLoginForm() {
                                    onChange={ev => setEmail(ev.target.value.trim().toLowerCase())}
                                    type="text"
                                    placeholder="Email"
-                                   className="w-full rounded-lg p-2 mb-2 border-2 border-[#FEF9EE] mx-auto"/>
+                                   className="w-full rounded-lg p-2 mb-2 border-[1px] border-accentHover mx-auto"/>
                             {loginError === 'Please enter a valid email address' && isForgotPassword && (
                                 <div className=" mx-auto text-md text-center text-red-500 p-2 flex justify-between align-middle">
                                     <span className="">{loginError}</span>
@@ -137,7 +144,7 @@ export default function RegisterAndLoginForm() {
                                     )}
                                 </div>
                             )}
-                            <button className="block w-full my-6 rounded-md p-2 bg-orange-500 text-white mx-auto drop-shadow-md">
+                            <button className="block w-full my-6 rounded-md p-2 bg-accent text-white mx-auto drop-shadow-md">
                                 Send Reset Email
                             </button>
                             {resetPasswordNotice && (
@@ -156,19 +163,19 @@ export default function RegisterAndLoginForm() {
                                        }}
                                        type="text"
                                        placeholder="Email"
-                                       className="w-full rounded-lg p-2 mb-2 border-2 border-[#FEF9EE] mx-auto"/>
+                                       className="w-full rounded-lg p-2 mb-2 border-[1px] border-accentHover mx-auto"/>
                                 {isLoginOrRegister === "register" && (
                                     <input value={username}
                                            onChange={ev => setUsername(ev.target.value)}
                                            type="text"
                                            placeholder="Username"
-                                           className="block w-full rounded-lg p-2 mb-2 border-2 border-[#FEF9EE] mx-auto"/>
+                                           className="block w-full rounded-lg p-2 mb-2 border-[1px] border-accentHover mx-auto"/>
                                 )}
                                 <input value={password}
                                        onChange={ev => setPassword(ev.target.value)}
                                        type="password"
                                        placeholder="Password"
-                                       className="block w-full rounded-lg p-2 mb-2 border mx-auto"/>
+                                       className="block w-full rounded-lg p-2 mb-2 border-[1px] border-accentHover mx-auto"/>
                                 {/* Login Error Alert */}
                                 {loginError && isLoginOrRegister === 'login' && (
                                     <div className=" mx-auto text-md text-center text-red-500 p-2 flex justify-between align-middle">
@@ -176,7 +183,7 @@ export default function RegisterAndLoginForm() {
 
                                     </div>
                                 )}
-                                <button className="block w-full my-6 rounded-md p-2 bg-orange-500 text-white mx-auto drop-shadow-md">
+                                <button className="block w-full my-6 rounded-md p-2 bg-accent text-white mx-auto drop-shadow-md">
                                     {isLoginOrRegister === "register"? "Sign Up":"Sign In"}
                                 </button>
                             </form>

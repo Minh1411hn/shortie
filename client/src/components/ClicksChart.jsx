@@ -150,11 +150,20 @@ export default function ClicksChart() {
 
 
     return (
-        <ReactApexChart
-            options={chartData.options}
-            series={chartData.series}
-            type="area"
-            height={250}
-        />
+        <div>
+            {chartData.series[0].data.length > 0 && (
+                <ReactApexChart
+                    options={chartData.options}
+                    series={chartData.series}
+                    type="area"
+                    height={250}
+                />
+            )}
+            {!chartData.series[0].data[0] && (
+                <div className="flex ">
+                    <p className="mx-auto justify-center items-center">No Data</p>
+                </div>
+            )}
+        </div>
     )
 }

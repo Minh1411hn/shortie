@@ -60,36 +60,21 @@ export default function ResetPassword() {
 
 
 
-    useEffect(() => {
-        function handleResize() {
-            const width = window.innerWidth;
-            const isMobileView = width < 765;
-            setIsMobile(isMobileView);
-        };
-        handleResize();
-        window.addEventListener("resize", handleResize);
-
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, [])
-
-
 
 
     return (
-        <div className="bg-[#FF7235] h-screen flex items-center justify-center overflow-hidden">
+        <div className="bg-dark h-screen flex items-center justify-center overflow-hidden">
             <div className="bg-white w-[90%] md:w-[500px] mx-auto border rounded-[10px] justify-center py-5 items-center text-center">
                 <div className={`${isMobile ? "w-4/5 mx-auto" : "w-2/3 mx-auto"}`}>
                     {resetPasswordMessage && (
                         <>
-                            <div className="text-black text-3xl font-medium">
+                            <div className="text-grey text-3xl font-medium">
                                 {resetPasswordMessage}
                             </div>
                             <p className="text-sm pt-3">
                                 Your Reset Password link is invalid or has expired.
                             </p>
-                            <button onClick={handleBackToMain} className="block w-full my-6 rounded-md p-2 bg-orange-500 text-white mx-auto drop-shadow-md" >Go Back</button>
+                            <button onClick={handleBackToMain} className="block w-full my-6 rounded-md p-2 bg-accent text-white mx-auto drop-shadow-md" >Go Back</button>
                         </>
                     )}
                     {!resetPasswordMessage && (
@@ -102,7 +87,7 @@ export default function ResetPassword() {
                                         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <Gravatar email={`https://www.gravatar.com/avatar/${md5(email.toLowerCase())}?d=retro&s=300`} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full object-cover" />
+                                    <Gravatar email={email} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full object-cover" />
                                 )}
                             </div>
                             <p className="font-semibold text-3xl py-5">{username}</p>
@@ -120,7 +105,7 @@ export default function ResetPassword() {
                                 {passwordMatchError && (
                                     <p className="mx-auto text-md text-center text-red-500 p-2">Passwords Not Match</p>
                                 )}
-                                <button className="block w-full mt-6 mb-2 rounded-md p-2 bg-orange-500 text-white mx-auto drop-shadow-md" >Reset Password</button>
+                                <button className="block w-full mt-6 mb-2 rounded-md p-2 bg-accent text-white mx-auto drop-shadow-md" >Reset Password</button>
                             </form>
                             <button onClick={handleBackToMain} className="text-sm underline text-gray-500 cursor-pointer">Cancel</button>
                         </>

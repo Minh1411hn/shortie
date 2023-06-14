@@ -11,13 +11,7 @@ const useragent = require('useragent');
 const Useragent = require('useragent');
 const maxmind = require('maxmind');
 const { DateTime } = require('luxon');
-//
-//
-// const cityLookup = maxmind.open('/assets/GeoLite2-ASN.mmdb');
-// const asnLookup = maxmind.open('/assets/GeoIPASNum.mmdb');
-// const ispLookup = maxmind.open('/assets/GeoISP.mmdb');
-
-// useragent(true);
+const { v4: uuidv4 } = require('uuid');
 
 
 const app = express();
@@ -154,23 +148,68 @@ app.get('/profile', (req,res) => {
     }
 });
 
+app.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Search for the email in the database
+        const client = await pool.connect();
+        const query = 'SELECT * FROM users WHERE email = $1';
+        const values = [email];
+        const result = await client.query(query, values);
+
+        const user = result.rows[0];
+
+        if (!user) {
+            return res.status(404).json({ message: 'Email not found' });
+        }
+
+        const token = uuidv4();
+
+        const updateQuery = 'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE email = $3';
+        const updateValues = [token, new Date(Date.now() + 3600000), email];
+        await pool.query(updateQuery, updateValues);
+
+        axios
+            .post(process.env.EMAIL_HOOKS, {
+                email: email,
+                token: `${process.env.CLIENT_URL}/?token=${token}`,
+                user: user.username,
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(function (response) {
+                // console.log(response);
+            })
+            .catch(function (error) {
+                // console.log(error);
+            });
+        res.status(200).json({ message: 'Reset password email sent successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 app.post('/reset-password', async (req, res) => {
-    const { email, id, password } = req.body;
+    const { email, password } = req.body;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10); // Generate a salt and hash the password
         const client = await pool.connect();
 
         // Update the user's password in the database
-        const query = 'UPDATE users SET password = $1 WHERE id = $2 RETURNING *';
-        const values = [hashedPassword, id];
+        const query = 'UPDATE users SET password = $1 WHERE email = $2 RETURNING *';
+        const values = [hashedPassword, email];
         const result = await client.query(query, values);
 
         const user = result.rows[0];
 
         // Generate a new JWT token with the updated user information
         jwt.sign(
-            { userId: id, email, username: user.username, avatar: user.avatar },
+            { userId: user.id, email, username: user.username, avatar: user.avatar },
             jwtSecret,
             {},
             (err, token) => {
@@ -188,6 +227,28 @@ app.post('/reset-password', async (req, res) => {
     } catch (error) {
         console.error('Error during password reset:', error);
         res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.get('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const client = await pool.connect();
+        const query = 'SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > $2::TIMESTAMP';
+        const values = [token, new Date()];
+        const result = await client.query(query, values);
+
+        const user = result.rows[0];
+
+        if (!user) {
+            res.status(404).json({ message: 'Invalid or expired token' });
+        } else {
+            res.status(200).json({ username: user.username, userId: user.user_id, avatar: user.avatar, email: user.email });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
@@ -247,6 +308,12 @@ app.post('/shorten/new', async (req, res) => {
             // Invalid API key
             client.release();
             return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const urlRegex = /^(?:(?:(?:https?|ftp):)?\/\/)?([\w-]+(?:\.[\w-]+)+(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)/;
+        if (!urlRegex.test(long_url)) {
+            client.release();
+            return res.status(400).json({ message: 'Invalid URL' });
         }
 
         const { customAlphabet } = await import('nanoid');

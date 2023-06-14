@@ -22,6 +22,7 @@ export function UserContextProvider({ children }) {
         if (token) {
             axios.get(`/reset-password/${token}`)
                 .then((response) => {
+                    console.log(response.data);
                     if (response.status === 200) {
                         setId(response.data.userId);
                         setEmail(response.data.email);
