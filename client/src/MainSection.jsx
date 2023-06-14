@@ -28,7 +28,9 @@ export default function MainSection() {
 
             <div className="w-[87%] bg-dark align-center flex flex-col">
                 <div className="w-[95%] mx-auto">
-                    <div className="bg-light my-2 drop-shadow h-20 rounded-lg mb-10">topbar</div>
+                    <div className="bg-light my-2 drop-shadow h-20 rounded-lg mb-10">
+
+                    </div>
                     {selectedSection === 'dashboard' && <SectionDashboard />}
                     {selectedSection === 'links' && <SectionLinks/>}
                     {selectedSection === 'qrcodes' && <SectionQRCodes/>}

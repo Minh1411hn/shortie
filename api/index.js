@@ -8,6 +8,7 @@ const { Pool } = require('pg');
 const crypto = require('crypto');
 const axios = require('axios');
 const useragent = require('useragent');
+const Useragent = require('useragent');
 const maxmind = require('maxmind');
 const { DateTime } = require('luxon');
 //
@@ -16,7 +17,7 @@ const { DateTime } = require('luxon');
 // const asnLookup = maxmind.open('/assets/GeoIPASNum.mmdb');
 // const ispLookup = maxmind.open('/assets/GeoISP.mmdb');
 
-useragent(true);
+// useragent(true);
 
 
 const app = express();
@@ -323,6 +324,61 @@ app.post('/links/statistics', async (req, res) => {
     }
 });
 
+app.post('/events/useragent', async (req, res) => {
+    const { user_id } = req.body;
+
+    try {
+        const client = await pool.connect();
+        const query = 'SELECT user_agent, COUNT(*) AS event_count\n' +
+            'FROM events\n' +
+            'LEFT JOIN urls u on u.id = events.shortened_url_id\n' +
+            'WHERE u.user_id = $1\n' +
+            'GROUP BY user_agent ORDER BY event_count DESC; ';
+        const values = [user_id];
+        const result = await client.query(query, values);
+        client.release();
+
+        const processedData = result.rows.map((item) => {
+            const userAgent = Useragent.parse(item.user_agent);
+            const device = userAgent.device.toString();
+            const browser = userAgent.family;
+
+            return {
+                ...item,
+                device,
+                browser
+            };
+        });
+
+        res.status(200).json(processedData);
+    } catch (error) {
+        console.error('Error getting URLs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.post('/links/timechart', async (req, res) => {
+    const { user_id } = req.body;
+
+    try {
+        const client = await pool.connect();
+        const query = 'SELECT EXTRACT(YEAR FROM DATE_TRUNC(\'month\', events.timestamp)) AS year,\n' +
+            '       TO_CHAR(DATE_TRUNC(\'month\', events.timestamp), \'Month\') AS month_name,\n' +
+            '       COUNT(*) AS clicks_count\n' +
+            'FROM events\n' +
+            'left join urls u on u.id = events.shortened_url_id\n' +
+            'WHERE u.user_id = $1\n' +
+            'GROUP BY year, month_name, DATE_PART(\'month\', DATE_TRUNC(\'month\', events.timestamp))\n' +
+            'ORDER BY year, DATE_PART(\'month\', DATE_TRUNC(\'month\', events.timestamp));\n';
+        const values = [user_id];
+        const result = await client.query(query, values);
+        client.release();
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error getting URLs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 app.get('/:shortened_id', async (req, res) => {
     const { shortened_id: shortenedId } = req.params;
