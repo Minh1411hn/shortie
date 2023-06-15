@@ -130,12 +130,12 @@ export default function SectionDashboard(props) {
                         <h1>
                             Top Links
                         </h1>
-                        {!allLinksStats.length == 0 && (
+                        {allLinksStats[0].clicks_count < 1 && (
                             <div className="flex">
                                 <p className="mx-auto justify-center items-center">No Data</p>
                             </div>
                         )}
-                        {allLinksStats.length > 0 && (
+                        {allLinksStats[0].clicks_count > 0 && (
                             <div className="pt-6">
                                 {allLinksStats.filter((link) => link.clicks_count > 0).slice(0, 7).map((link) => {
                                     return (
