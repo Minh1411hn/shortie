@@ -81,6 +81,7 @@ export default function SectionLinks() {
     const [selectedShortenedId, setSelectedShortenedId] = useState(null);
     const [selectedExpireDate, setSelectedExpireDate] = useState(null);
     const [selectedOriginUrl, setSelectedOriginUrl] = useState(null);
+    const [newLinkError, setNewLinkError] = useState(null);
 
 
 
@@ -95,10 +96,6 @@ export default function SectionLinks() {
     };
 
 
-
-    useEffect (() => {
-        console.log(expireDate);
-    }, [expireDate]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -124,7 +121,7 @@ export default function SectionLinks() {
         try {
             const response = await axios.post(`/links/delete`, { shortened_id: selectedShortenedId });
             if (response.status === 200) {
-                console.log(response.data);
+                // console.log(response.data);
                 setToastMessage('Link deleted successfully');
                 handleToast();
                 setSelectedShortenedId(null);
@@ -151,7 +148,6 @@ export default function SectionLinks() {
 
 
             if (response.status === 200) {
-                console.log(response.data);
                 const data = response.data;
                 setShortenedResult(data);
                 setShortenedLink(`${import.meta.env.VITE_API_BASE_URL}/${data.shortened_id}`);
@@ -159,7 +155,8 @@ export default function SectionLinks() {
                 throw new Error('Failed to shorten URL');
             }
         } catch (error) {
-            console.error('Error during URL shortening:', error);
+            console.error(error.response.data.message);
+            setNewLinkError(error.response.data.message);
             // Handle the error
         }
     };
@@ -336,11 +333,12 @@ export default function SectionLinks() {
                                     className="p-4 text-sm w-full rounded-lg"
                                     type="text"
                                     value={newLink }
-                                    placeholder="https://google.com"
+                                    placeholder="https://example.com"
                                     onChange={ev => {
                                         setNewLink(ev.target.value);
                                         setShortenedLink(null);
                                         setExpireDate(null);
+                                        setNewLinkError(null);
                                     }}
                                 />
                             </div>
@@ -348,6 +346,9 @@ export default function SectionLinks() {
                                 Create Link
                             </button>
                         </div>
+                        {newLinkError && (
+                            <p className="text-red-500 text-sm p-2">Please enter a valid URL, like "example.com/hehe"</p>
+                        )}
                         <div className="mt-4 flex space-x-2">
                             <div className="flex-grow">
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>

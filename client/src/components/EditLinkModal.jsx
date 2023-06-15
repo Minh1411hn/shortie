@@ -77,10 +77,10 @@ export default function EditLinkModal ({selectedShortenedId, selectedExpireDate,
     const handleEdit = async (event) => {
         try {
             const response = await axios.post('/shorten/edit', { long_url: originLink? originLink : selectedOriginUrl, expired_at: DateTime.fromJSDate(expireDate).minus({hours: 7}).toISO(), shortened_id: selectedShortenedId});
-            console.log(`response ${JSON.stringify(response.data)}`);
+            // console.log(`response ${JSON.stringify(response.data)}`);
 
             if (response.status === 200) {
-                console.log(response.data);
+                // console.log(response.data);
                 const data = response.data;
                 // setExpireDate(response.expired_at)
                 setToastMessage('Edit Success!');
@@ -115,7 +115,7 @@ export default function EditLinkModal ({selectedShortenedId, selectedExpireDate,
             <Modal
                 open={selectedShortenedId?true:false}
                 onClose={() => {
-                    console.log(`selectedLink ${selectedShortenedId}`);
+                    // console.log(`selectedLink ${selectedShortenedId}`);
                     setSelectedShortenedId(null);
                 }}
                 aria-labelledby="modal-modal-title"

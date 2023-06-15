@@ -12,6 +12,7 @@ const Useragent = require('useragent');
 const maxmind = require('maxmind');
 const { DateTime } = require('luxon');
 const { v4: uuidv4 } = require('uuid');
+const ejs = require('ejs');
 
 
 const app = express();
@@ -40,6 +41,7 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.static('public'));
 app.use(cors({
     credentials: true,
     origin: process.env.BASE_URL,
@@ -454,31 +456,57 @@ app.get('/:shortened_id', async (req, res) => {
 
     const userAgent = useragent.parse(req.headers['user-agent']);
     const device = `${userAgent.os.toString()} - ${userAgent.toString()}`;
-    const currentTime = DateTime.now();
 
     try {
         const client = await pool.connect();
         const query = 'SELECT * FROM urls WHERE shortened_id = $1';
         const values = [shortenedId];
         const result = await client.query(query, values);
-
-        const redirectUrl = result.rows[0].original_url;
         const protocolRegex = /^(https?|ftp):\/\//;
 
         client.release();
 
         // Not Found URL
         if (result.rowCount === 0) {
-            return res.status(200).json({ message: 'URL not found' });
+            // return res.status(200).json({ message: 'URL not found' });
+            return ejs.renderFile('error-page.ejs', {title: 'Url Not Found', message: 'The URL you requested not found' })
+                .then((html) => {
+                    res.status(401).send(html);
+                })
+                .catch((err) => {
+                    console.error('Error rendering error page:', err);
+                    res.status(500).json({ message: 'Internal server error' });
+                });
 
         // Deleted URL
         } else if (result.rows[0].deleted_at !== null) {
-            return res.status(200).json({ message: 'URL deleted', deleted_at: result.rows[0].deleted_at });
+            // return res.status(200).json({ message: 'URL deleted', deleted_at: result.rows[0].deleted_at });
+            return ejs.renderFile('error-page.ejs', {title: 'Url Deleted', message: `The URL you requested has been deleted at ${DateTime.fromJSDate(result.rows[0].deleted_at).plus({hours:7}).toFormat('HH:mm dd/MM/yyyy')}` })
+                .then((html) => {
+                    res.status(401).send(html);
+                })
+                .catch((err) => {
+                    console.error('Error rendering error page:', err);
+                    res.status(500).json({ message: 'Internal server error' });
+                });
 
 
         } else {
-            const expiredAt = DateTime.fromJSDate(new Date(result.rows[0].expired_at)).setZone('Asia/Ho_Chi_Minh').plus({ hours: 7 });
+            const expiredAt = DateTime.fromJSDate(result.rows[0].expired_at);
+            const currentTime = DateTime.now();
+            const redirectUrl = result.rows[0].original_url;
+            console.log(expiredAt < currentTime);
             if (expiredAt < currentTime) {
+                // return res.status(200).json({ message: 'URL expired', expired_at: expiredAt});
+                return ejs.renderFile('error-page.ejs', {title: 'Url Expired', message: `The URL you requested has expired at ${expiredAt.plus({hours:7}).toFormat('HH:mm dd/MM/yyyy')}` })
+                    .then((html) => {
+                        res.status(401).send(html);
+                    })
+                    .catch((err) => {
+                        console.error('Error rendering error page:', err);
+                        res.status(500).json({ message: 'Internal server error' });
+                    });
+            } else {
                 try {
                     const client = await pool.connect();
                     const insertQuery = 'INSERT INTO events (shortened_url_id, timestamp, user_agent, ip_address) VALUES ($1, $2, $3, $4)';
@@ -497,8 +525,6 @@ app.get('/:shortened_id', async (req, res) => {
                     // The URL already has a protocol, redirect as is
                     return res.redirect(redirectUrl);
                 }
-            } else {
-                return res.status(200).json({ message: 'URL expired', expired_at: expiredAt});
             }
         }
     } catch (error) {
