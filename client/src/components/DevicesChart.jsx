@@ -12,7 +12,7 @@ export default function ClicksChart() {
             try {
                 const response = await axios.post(`/events/useragent`, { user_id: id });
                 if (response.status === 200) {
-                    console.log(response.data);
+                    // console.log(response.data);
                     const chartData = processChartData(response.data);
                     setChartData(chartData);
 
